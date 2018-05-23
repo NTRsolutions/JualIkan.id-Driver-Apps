@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back"
+    tools:context="com.synergics.ishom.jualikanid_driver.View.SplashActivity">
+
+    <ImageView
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="160dp"
+        app:layout_widthPercent="80%"
+        app:srcCompat="@drawable/nama_logo"
+        app:layout_heightPercent="14%"
+        />
+
+    <ImageView
+        android:layout_alignParentBottom="true"
+        app:layout_marginBottomPercent="18%"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        app:srcCompat="@drawable/paus"
+        app:layout_heightPercent="28%"
+        />
+
+</android.support.percent.PercentRelativeLayout>

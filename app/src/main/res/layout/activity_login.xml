@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back"
+    tools:context="com.synergics.ishom.jualikanid_driver.View.LoginActivity">
+
+    <ImageView
+        android:id="@+id/image1"
+        app:layout_marginTopPercent="8%"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        app:srcCompat="@drawable/paus"
+        app:layout_heightPercent="18%"
+        />
+
+    <ImageView
+        android:id="@+id/image2"
+        android:layout_below="@id/image1"
+        android:layout_centerHorizontal="true"
+        app:layout_widthPercent="80%"
+        app:layout_marginTopPercent="2%"
+        app:srcCompat="@drawable/nama_logo"
+        app:layout_heightPercent="12%"
+        />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_below="@id/image2"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_marginTop="12dp"
+        android:layout_width="344dp"
+        android:paddingBottom="18dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_marginTop="12dp"
+            android:textSize="16dp"
+            android:textColor="#737373"
+            android:text="Nomer Telephone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_marginTop="4dp"
+            android:background="@drawable/back_edt_login"
+            android:layout_width="280dp"
+            android:padding="4dp"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                app:srcCompat="@drawable/icon_telephone"
+                android:layout_width="26dp"
+                android:layout_marginLeft="12dp"
+                android:layout_height="26dp" />
+
+            <EditText
+                android:padding="12dp"
+                android:id="@+id/edtUsername"
+                android:background="@drawable/back_transparant"
+                android:hint="Nomer Telephone"
+                android:textColor="#737373"
+                android:textSize="16dp"
+                android:textColorHint="#737373"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="phone"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:textSize="16dp"
+            android:layout_marginTop="12dp"
+            android:textColor="#343434"
+            android:text="Password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_marginTop="4dp"
+            android:background="@drawable/back_edt_login"
+            android:layout_width="280dp"
+            android:padding="4dp"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                app:srcCompat="@drawable/icon_login_password"
+                android:layout_width="26dp"
+                android:layout_marginLeft="12dp"
+                android:layout_height="26dp" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="0dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="8dp"
+                app:hintEnabled="false"
+                app:passwordToggleTint="#737373"
+                android:background="@drawable/back_transparant"
+                app:passwordToggleEnabled="true">
+
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/back_transparant"
+                    android:hint="Password"
+                    android:textSize="16dp"
+                    android:textColor="#737373"
+                    android:textColorHint="#737373"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_below="@id/content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btnLogin"
+        android:textColor="#fff"
+        android:text="Login"
+        app:layout_marginTopPercent="4%"
+        android:background="@drawable/back_btn_login"
+        android:layout_width="280dp"
+        android:layout_height="52dp" />
+
+
+
+</android.support.percent.PercentRelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#343434</color>
+    <color name="colorAccent">#499ECE</color>
+
+    <color name="backActivity">#EFEFEF</color>
+
+    <color name="darkBlue">#3796CB</color>
+    <color name="blueFont">#499ECE</color>
+    <color name="blueLine">#7AC8F4</color>
+    <color name="blueLine2">#E3F5FF</color>
+
+    <color name="putih">#FFFFFF</color>
+    <color name="whiteBlue">#F6FCFF</color>
+    <color name="black34">#343434</color>
+    <color name="black73">#737373</color>
+    <color name="blackB2">#B2B2B2</color>
+
+    <color name="orange">#FBA25E</color>
+    <color name="red">#D0011B</color>
+    <color name="green">#68AC36</color>
+
+</resources>

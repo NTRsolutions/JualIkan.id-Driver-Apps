@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '27.0.3'
+    defaultConfig {
+        applicationId "com.synergics.ishom.jualikanid_driver"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true //important
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        customDebugType {
+            debuggable true
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:multidex:1.0.1'
+
+    implementation 'net.idik:slimadapter:2.1.2'
+
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:26.+'
+    implementation 'com.android.support:percent:26.+'
+    implementation 'com.android.support:design:26.+'
+
+    implementation 'com.google.android.gms:play-services:11.0.0'
+    implementation 'com.google.android.gms:play-services-location:11.0.0'
+    implementation 'com.google.android.gms:play-services-places:11.0.0'
+    implementation 'com.google.firebase:firebase-messaging:11.0.0'
+
+    implementation 'com.miguelcatalan:materialsearchview:1.4.0'
+
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'it.sephiroth.android.library.bottomnavigation:bottom-navigation:2.0.1-rc1'
+    implementation 'com.android.support:support-v4:26.+'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation 'com.karumi:dexter:4.1.0'
+    implementation 'fr.avianey.com.viewpagerindicator:library:2.4.1.1@aar'
+
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.squareup.okio:okio:1.7.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'com.facebook.stetho:stetho:1.4.2'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.4.2'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+apply plugin: 'com.google.gms.google-services'

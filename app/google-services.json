@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "724156806372",
+    "firebase_url": "https://jualikan-1515261954213.firebaseio.com",
+    "project_id": "jualikan-1515261954213",
+    "storage_bucket": "jualikan-1515261954213.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724156806372:android:b566e0d8ea8d9939",
+        "android_client_info": {
+          "package_name": "com.synergics.ishom.jualikanid_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "724156806372-2r3ppe6im0mhionr8eoba9ak7q91c1hh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJTMAFMdcK8BeQpoJgVZWkXDE6wzDPbBg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
