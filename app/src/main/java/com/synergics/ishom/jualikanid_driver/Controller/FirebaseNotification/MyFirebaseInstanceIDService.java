@@ -1,8 +1,6 @@
 package com.synergics.ishom.jualikanid_driver.Controller.FirebaseNotification;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -22,11 +20,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
         // sending reg id to your server
         sendRegistrationToServer(refreshedToken);
-
-        // Notify UI that registration has completed, so the progress indicator can be hidden.
-        Intent registrationComplete = new Intent(AppConfig.REGISTRATION_COMPLETE);
-        registrationComplete.putExtra("token", refreshedToken);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
     private void sendRegistrationToServer(final String token) {

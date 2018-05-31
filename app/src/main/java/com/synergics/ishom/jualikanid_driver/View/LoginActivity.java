@@ -2,8 +2,8 @@ package com.synergics.ishom.jualikanid_driver.View;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -64,7 +64,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendLogin(String phone, String password) {
-        String  device_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
+        String regId = pref.getString("regId", null);
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading....");
@@ -74,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
 
         RequestBody rePhone = RequestBody.create(MediaType.parse("text/plain"), phone);
         RequestBody rePassword = RequestBody.create(MediaType.parse("text/plain"), password);
-        RequestBody reDevice = RequestBody.create(MediaType.parse("text/plain"), device_id);
+        RequestBody reDevice = RequestBody.create(MediaType.parse("text/plain"), regId);
 
         Call call = apiInterface.login(rePhone, rePassword, reDevice);
         call.enqueue(new Callback() {

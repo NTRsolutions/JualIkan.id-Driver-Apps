@@ -3,6 +3,7 @@ package com.synergics.ishom.jualikanid_driver.Controller.RetroConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsAdress;
 import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsDirectionResponse;
 import com.synergics.ishom.jualikanid_driver.Model.Object.MidtransPayment;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMidtransSnap;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
@@ -60,5 +61,7 @@ public interface ApiInterface {
                               @Part("password") RequestBody pass,
                               @Part("device_id") RequestBody device_id);
 
+    @GET("detail-delivery.php")
+    Call<ResponseDetailDelivery> detailDelivery(@Query("delivery_id") String idDelivery);
 
 }

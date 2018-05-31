@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by asmarasusanto on 1/18/18.
  */
 
-public class ResponseLogin {
+public class    ResponseLogin {
     @SerializedName("response") public int response;
     @SerializedName("status") public boolean status;
     @SerializedName("data") public Data data;

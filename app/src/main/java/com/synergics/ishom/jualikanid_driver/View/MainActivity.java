@@ -1,6 +1,7 @@
 package com.synergics.ishom.jualikanid_driver.View;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private Setting setting;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +72,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navHeaderContent();
 
         //setting tampilan menu
+        setContent();
+    }
+
+    private void setContent() {
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
+        String regId = pref.getString("regId", null);
+
+        TextView text = findViewById(R.id.text);
+        text.setText(regId);
     }
 
     private void navHeaderContent() {
