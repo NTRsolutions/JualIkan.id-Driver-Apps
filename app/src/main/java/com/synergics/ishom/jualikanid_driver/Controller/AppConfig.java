@@ -5,8 +5,8 @@ package com.synergics.ishom.jualikanid_driver.Controller;
  */
 
 public class AppConfig {
-//    public static String url = "http://192.168.1.18/jualikan.id/";
-    public static String url = "http://192.168.43.168/jualikan.id/";
+    public static String url = "http://192.168.1.17/jualikan.id/";
+//    public static String url = "http://192.168.43.168/jualikan.id/";
     public static String user_level = "1";
 
     public static final String TOPIC_GLOBAL = "global";

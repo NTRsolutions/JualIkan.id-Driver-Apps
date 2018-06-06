@@ -2,23 +2,31 @@ package com.synergics.ishom.jualikanid_driver.View.Delivery;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -45,11 +54,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.synergics.ishom.jualikanid_driver.Controller.AppConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiClient;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiInterface;
+import com.synergics.ishom.jualikanid_driver.Controller.SQLiteHandler;
 import com.synergics.ishom.jualikanid_driver.Controller.Setting;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.MapsTracker;
@@ -67,6 +83,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -93,6 +111,10 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
     private PolylineOptions lineOptions = null;
     private Polyline poly;
     private String provider;
+
+    private String timeDelivery, codeDelivery;
+
+    private DatabaseReference firebaseDb = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,16 +157,91 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
     }
 
     private void doingAccepted() {
-        Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
+
+        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_driver = db.getUser().driver_id;
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading....");
+        progressDialog.show();
+
+        ApiInterface apiInterface = ApiClient.jualikanService().create(ApiInterface.class);
+
+        RequestBody reIdDelivery = RequestBody.create(MediaType.parse("text/plain"), id_delivery);
+        RequestBody reIdDriver = RequestBody.create(MediaType.parse("text/plain"), id_driver);
+        RequestBody reTime = RequestBody.create(MediaType.parse("text/plain"), timeDelivery);
+
+        Call call = apiInterface.acceptDelivery(reIdDelivery, reIdDriver, reTime);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+
+                if (response.isSuccessful()){
+                    ResponseAcceptedDelivery res = (ResponseAcceptedDelivery) response.body();
+                    if (res.status){
+                        displayNotifikasi(codeDelivery, "Klik untuk detail rute");
+                    }else {
+                        Toast.makeText(getApplicationContext(), res.message, Toast.LENGTH_SHORT).show();
+                    }
+
+                }else {
+                    Toast.makeText(getApplicationContext(), "Failed to access server", Toast.LENGTH_SHORT).show();
+                }
+                progressDialog.hide();
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+
+            }
+        });
     }
 
     private void doingRejected() {
-        Toast.makeText(this, "Rejected", Toast.LENGTH_SHORT).show();
+        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
+
+        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_driver = db.getUser().driver_id;
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading....");
+        progressDialog.show();
+
+        ApiInterface apiInterface = ApiClient.jualikanService().create(ApiInterface.class);
+
+        RequestBody reIdDelivery = RequestBody.create(MediaType.parse("text/plain"), id_delivery);
+        RequestBody reIdDriver = RequestBody.create(MediaType.parse("text/plain"), id_driver);
+        RequestBody reTime = RequestBody.create(MediaType.parse("text/plain"), timeDelivery);
+
+        Call call = apiInterface.rejectDelivery(reIdDelivery, reIdDriver, reTime);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+
+                if (response.isSuccessful()){
+                    ResponseAcceptedDelivery res = (ResponseAcceptedDelivery) response.body();
+                    if (res.status){
+                        Toast.makeText(DetailDelivery2Activity.this, "Anda menolak pengiriman", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }else {
+                        Toast.makeText(getApplicationContext(), res.message, Toast.LENGTH_SHORT).show();
+                    }
+
+                }else {
+                    Toast.makeText(getApplicationContext(), "Failed to access server", Toast.LENGTH_SHORT).show();
+                }
+                progressDialog.hide();
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+
+            }
+        });
     }
 
     private void getDetailPengiriman() {
-
-        Toast.makeText(this, "Doing ?", Toast.LENGTH_SHORT).show();
 
         String id_delivery = getIntent().getExtras().getString("delivery_id");
 
@@ -168,6 +265,9 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
                         txtJarakPengiriman.setText(res.data.distance.text);
                         txtWaktuPengiriman.setText(res.data.time.text);
                         txtBiayaPengiriman.setText("Rp. " + money(res.data.biaya.value));
+
+                        timeDelivery = String.valueOf(res.data.time.value);
+                        codeDelivery = res.data.code;
 
                         mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
                         mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
@@ -394,14 +494,18 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
         btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(DetailDelivery2Activity.this, "CALL  | " + data.user.phone, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + data.user.phone));
+                startActivity(intent);
             }
         });
 
         btnMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(DetailDelivery2Activity.this, "MESSAGE  | " + data.user.phone, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.fromParts("sms", data.user.phone, null));
+                startActivity(intent);
             }
         });
 
@@ -480,12 +584,29 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
         super.onResume();
     }
 
+    private BitmapDescriptor getDriverMarkerBitmap() {
+        View iconView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.item_marker_driver, null);
+        iconView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        iconView.layout(0, 0, iconView.getMeasuredWidth(), iconView.getMeasuredHeight());
+        iconView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(iconView.getMeasuredWidth(), iconView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        Drawable drawable = iconView.getBackground();
+        if (drawable != null)
+            drawable.draw(canvas);
+        iconView.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
     private void registerLocationUpdate() {
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_LOW);
         criteria.setAccuracy(Criteria.POWER_LOW);
         criteria.setAltitudeRequired(false);
         criteria.setBearingRequired(false);
+
+
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         provider = locationManager.getBestProvider(criteria, true);
@@ -504,12 +625,27 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
 
         Location oldLocation = locationManager.getLastKnownLocation(provider);
         if (myPositionMarker == null && oldLocation != null){
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
+            String regId = pref.getString("regId", null);
+            firebaseDb.child("Tracking").child(regId).setValue(oldLocation);
+            firebaseDb.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(DetailDelivery2Activity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
             myPositionMarker = mMap.addMarker(new MarkerOptions()
                     .flat(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_driver_motor))
+                    .icon(getDriverMarkerBitmap())
                     .anchor(0.5f, 0.5f)
                     .position(new LatLng(oldLocation.getLatitude(), oldLocation.getLongitude()))
             );
+
         }
 
         animateMarker(myPositionMarker, oldLocation);
@@ -521,12 +657,26 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
             return;
         }
 
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
+        String regId = pref.getString("regId", null);
+        firebaseDb.child("Tracking").child(regId).setValue(location);
+        firebaseDb.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(DetailDelivery2Activity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
         Log.d("onLocationChanged: ", location.getLatitude() + "," + location.getLongitude());
 
         if (myPositionMarker == null){
             myPositionMarker = mMap.addMarker(new MarkerOptions()
                     .flat(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_driver_motor))
+                    .icon(getDriverMarkerBitmap())
                     .anchor(0.5f, 0.5f)
                     .position(new LatLng(location.getLatitude(), location.getLongitude()))
             );
@@ -579,5 +729,39 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
             }
         });
 
+    }
+
+    //============ post terima pengiriman ============//
+    private void acceptPengiriman(){
+
+    }
+
+    private void displayNotifikasi(String title, String message){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Intent intent = new Intent(getApplicationContext(), DetailDeliveryActivity.class);
+        intent.putExtra("delivery_id", getIntent().getExtras().getString("delivery_id"));
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentTitle(title);
+        builder.setContentText(message);
+        builder.setSmallIcon(R.drawable.icon_car);
+
+        BitmapDrawable bitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.icon_car);
+        Bitmap largeIconBitmap = bitmapDrawable.getBitmap();
+        builder.setLargeIcon(largeIconBitmap);
+
+        builder.setOngoing(true);
+        builder.setContentIntent(pendingIntent);
+
+        builder.setDefaults(Notification.DEFAULT_ALL);
+        builder.setFullScreenIntent(pendingIntent, true);
+
+        Notification notification = builder.build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        notificationManager.notify(10, notification);
     }
 }

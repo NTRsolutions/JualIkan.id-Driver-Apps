@@ -3,9 +3,12 @@ package com.synergics.ishom.jualikanid_driver.Controller.RetroConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsAdress;
 import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsDirectionResponse;
 import com.synergics.ishom.jualikanid_driver.Model.Object.MidtransPayment;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMainMenu;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMidtransSnap;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseUpdateStatus;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.NearbyLocation;
 
@@ -63,5 +66,27 @@ public interface ApiInterface {
 
     @GET("detail-delivery.php")
     Call<ResponseDetailDelivery> detailDelivery(@Query("delivery_id") String idDelivery);
+
+    @Multipart
+    @POST("menu.php")
+    Call<ResponseMainMenu> menu(@Part("driver_id") RequestBody driver_id);
+
+    @Multipart
+    @POST("delivery-update-status.php")
+    Call<ResponseUpdateStatus> updateStatus(@Part("driver_id") RequestBody driver_id,
+                                            @Part("status") RequestBody status);
+
+    @Multipart
+    @POST("accept-delivery.php")
+    Call<ResponseAcceptedDelivery> acceptDelivery(@Part("delivery_id") RequestBody delivery_id,
+                                                  @Part("driver_id") RequestBody driver_id,
+                                                  @Part("time") RequestBody time);
+
+    @Multipart
+    @POST("reject-delivery.php")
+    Call<ResponseAcceptedDelivery> rejectDelivery(@Part("delivery_id") RequestBody delivery_id,
+                                                  @Part("driver_id") RequestBody driver_id,
+                                                  @Part("time") RequestBody time);
+
 
 }
