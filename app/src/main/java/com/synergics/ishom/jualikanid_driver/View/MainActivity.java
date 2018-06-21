@@ -133,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         moreSaldo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "More Saldo", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), RiwayatSaldoActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -352,11 +353,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //            Intent intent = new Intent(getApplicationContext(), RiwayatOrderActivity.class);
 //            startActivity(intent);
         } else if (id == R.id.btn_saldoku) {
-//            Intent intent = new Intent(getApplicationContext(), RiwayatOrderActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), RiwayatSaldoActivity.class);
+            startActivity(intent);
         } else if (id == R.id.btn_bantuan) {
-//            Intent intent = new Intent(getApplicationContext(), BantuanActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), BantuanActivity.class);
+            startActivity(intent);
         } else if (id == R.id.btn_logout) {
             Toast.makeText(getApplicationContext(), "Anda sedang logout!", Toast.LENGTH_SHORT).show();
             sessionManager.setLogin(false);

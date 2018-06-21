@@ -47,7 +47,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".View.Delivery.DetailDeliveryActivity"/>
+        <activity android:name=".View.Delivery.DetailDeliveryActivity" />
         <activity android:name=".View.Delivery.DetailDelivery2Activity">
             <intent-filter>
                 <action android:name="DELIVERY_NOTIF" />
@@ -55,6 +55,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".View.RiwayatPengirimanActivity" />
+        <activity android:name=".View.RiwayatSaldoActivity" />
+        <activity android:name=".View.BantuanActivity" />
+        <activity android:name=".View.WebViewActivity"></activity>
     </application>
 
 </manifest>

@@ -4,10 +4,12 @@ import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsAdress;
 import com.synergics.ishom.jualikanid_driver.Controller.GMapsTrack.GMapsDirectionResponse;
 import com.synergics.ishom.jualikanid_driver.Model.Object.MidtransPayment;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseBantuan;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMainMenu;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMidtransSnap;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseSaldo;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseUpdateStatus;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.NearbyLocation;
@@ -87,6 +89,19 @@ public interface ApiInterface {
     Call<ResponseAcceptedDelivery> rejectDelivery(@Part("delivery_id") RequestBody delivery_id,
                                                   @Part("driver_id") RequestBody driver_id,
                                                   @Part("time") RequestBody time);
+
+    @Multipart
+    @POST("bantuan.php")
+    Call<ResponseBantuan> bantuan(@Part("user_level") RequestBody user_level);
+
+    @Multipart
+    @POST("search_bantuan.php")
+    Call<ResponseBantuan> serach_bantuan(@Part("user_level") RequestBody user_level,
+                                         @Part("search") RequestBody search);
+
+    @Multipart
+    @POST("riwayat-saldo.php")
+    Call<ResponseSaldo> saldo_history(@Part("driver_id") RequestBody driver_id);
 
 
 }

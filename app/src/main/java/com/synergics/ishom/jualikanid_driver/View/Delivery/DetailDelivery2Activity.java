@@ -657,9 +657,8 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
             return;
         }
 
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
-        String regId = pref.getString("regId", null);
-        firebaseDb.child("Tracking").child(regId).setValue(location);
+        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
+        firebaseDb.child("Tracking").child(db.getUser().driver_id).setValue(location);
         firebaseDb.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
