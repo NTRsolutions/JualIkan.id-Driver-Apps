@@ -6,6 +6,7 @@ import com.synergics.ishom.jualikanid_driver.Model.Object.MidtransPayment;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseBantuan;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseListDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMainMenu;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMidtransSnap;
@@ -104,4 +105,11 @@ public interface ApiInterface {
     Call<ResponseSaldo> saldo_history(@Part("driver_id") RequestBody driver_id);
 
 
+    @Multipart
+    @POST("delivery-on-progress-history.php")
+    Call<ResponseListDelivery> deliveryProcessedHistory(@Part("driver_id") RequestBody driver_id);
+
+    @Multipart
+    @POST("delivery-finished-history.php")
+    Call<ResponseListDelivery> deliveryFinishedHistory(@Part("driver_id") RequestBody driver_id);
 }

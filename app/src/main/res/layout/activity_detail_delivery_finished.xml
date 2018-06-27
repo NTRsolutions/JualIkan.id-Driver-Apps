@@ -47,13 +47,42 @@
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/bgStatus"
+        android:layout_below="@id/appBarLayout"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_width="match_parent"
+        android:padding="16dp"
+        android:orientation="horizontal"
+        android:background="@drawable/back_white_rounded_4dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/idDelivery"
+            android:text="Delivery Status"
+            android:textColor="@color/black34"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/statusDelivery"
+            android:gravity="right"
+            android:text="Status Pengiriman"
+            android:textColor="@color/orange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_marginTop="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
         android:layout_width="match_parent"
         android:id="@+id/orderPayment"
         android:orientation="horizontal"
-        android:layout_below="@id/appBarLayout"
+        android:layout_below="@id/bgStatus"
         android:layout_above="@id/bgContent"
         android:layout_height="match_parent">
 
@@ -68,6 +97,7 @@
 
     <LinearLayout
         android:id="@+id/bgContent"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:layout_margin="16dp"
         android:background="@drawable/back_white_rounded_4dp"
@@ -192,38 +222,5 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/bgAcceptReject"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:layout_weight="1"
-            android:layout_marginRight="6dp"
-            android:id="@+id/btnReject"
-            android:text="Tolak"
-            android:textAllCaps="false"
-            android:background="@drawable/back_red_rounded_4dp"
-            android:textColor="@color/whiteBlue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/btnAccept"
-            android:layout_marginLeft="6dp"
-            android:layout_weight="1"
-            android:text="Terima"
-            android:textAllCaps="false"
-            android:background="@drawable/back_blue_dark_rounded_4dp"
-            android:textColor="@color/whiteBlue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
 
 </RelativeLayout>

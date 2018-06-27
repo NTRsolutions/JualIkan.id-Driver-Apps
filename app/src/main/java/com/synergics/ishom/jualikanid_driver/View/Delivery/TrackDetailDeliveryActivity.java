@@ -2,19 +2,15 @@ package com.synergics.ishom.jualikanid_driver.View.Delivery;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -26,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,13 +54,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ncorti.slidetoact.SlideToActView;
 import com.squareup.picasso.Picasso;
 import com.synergics.ishom.jualikanid_driver.Controller.AppConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiClient;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiInterface;
 import com.synergics.ishom.jualikanid_driver.Controller.SQLiteHandler;
 import com.synergics.ishom.jualikanid_driver.Controller.Setting;
-import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.MapsTracker;
@@ -83,16 +78,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailDelivery2Activity extends AppCompatActivity implements OnMapReadyCallback, LocationSource.OnLocationChangedListener, LocationListener {
+public class TrackDetailDeliveryActivity extends AppCompatActivity implements OnMapReadyCallback, LocationSource.OnLocationChangedListener, LocationListener {
 
     private TextView txtJarakPengiriman, txtWaktuPengiriman, txtBiayaPengiriman;
-    private Button btnReject, btnAccepted;
+    private Button btnFinish;
 
     private GoogleMap mMap;
     private LatLngBounds.Builder bounds;
@@ -112,14 +105,16 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
     private Polyline poly;
     private String provider;
 
-    private String timeDelivery, codeDelivery;
+    private SlideToActView slide;
+
+    private int counter = 0;
 
     private DatabaseReference firebaseDb = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_delivery2);
+        setContentView(R.layout.activity_detail_delivery);
 
         mapsTracker = new MapsTracker();
 
@@ -127,20 +122,11 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
         txtWaktuPengiriman = findViewById(R.id.waktuDelivery);
         txtBiayaPengiriman = findViewById(R.id.biayaDelivery);
 
-        btnReject = findViewById(R.id.btnReject);
-        btnAccepted = findViewById(R.id.btnAccept);
-
-        btnReject.setOnClickListener(new View.OnClickListener() {
+        slide = findViewById(R.id.slide);
+        slide.setOnSlideCompleteListener(new SlideToActView.OnSlideCompleteListener() {
             @Override
-            public void onClick(View view) {
-                doingRejected();
-            }
-        });
-
-        btnAccepted.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                doingAccepted();
+            public void onSlideComplete(SlideToActView slideToActView) {
+                completeDelivery();
             }
         });
 
@@ -156,90 +142,16 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
         setToolbar();
     }
 
-    private void doingAccepted() {
-        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
-
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
-        String id_driver = db.getUser().driver_id;
-
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading....");
-        progressDialog.show();
-
-        ApiInterface apiInterface = ApiClient.jualikanService().create(ApiInterface.class);
-
-        RequestBody reIdDelivery = RequestBody.create(MediaType.parse("text/plain"), id_delivery);
-        RequestBody reIdDriver = RequestBody.create(MediaType.parse("text/plain"), id_driver);
-        RequestBody reTime = RequestBody.create(MediaType.parse("text/plain"), timeDelivery);
-
-        Call call = apiInterface.acceptDelivery(reIdDelivery, reIdDriver, reTime);
-        call.enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) {
-
-                if (response.isSuccessful()){
-                    ResponseAcceptedDelivery res = (ResponseAcceptedDelivery) response.body();
-                    if (res.status){
-                        displayNotifikasi(codeDelivery, "Klik untuk detail rute");
-                    }else {
-                        Toast.makeText(getApplicationContext(), res.message, Toast.LENGTH_SHORT).show();
-                    }
-
-                }else {
-                    Toast.makeText(getApplicationContext(), "Failed to access server", Toast.LENGTH_SHORT).show();
-                }
-                progressDialog.hide();
-            }
-
-            @Override
-            public void onFailure(Call call, Throwable t) {
-
-            }
-        });
+    private void completeDelivery() {
+        Toast.makeText(this, "Delivery Finished !!", Toast.LENGTH_SHORT).show();
+        finishNotification();
     }
 
-    private void doingRejected() {
-        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
-
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
-        String id_driver = db.getUser().driver_id;
-
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading....");
-        progressDialog.show();
-
-        ApiInterface apiInterface = ApiClient.jualikanService().create(ApiInterface.class);
-
-        RequestBody reIdDelivery = RequestBody.create(MediaType.parse("text/plain"), id_delivery);
-        RequestBody reIdDriver = RequestBody.create(MediaType.parse("text/plain"), id_driver);
-        RequestBody reTime = RequestBody.create(MediaType.parse("text/plain"), timeDelivery);
-
-        Call call = apiInterface.rejectDelivery(reIdDelivery, reIdDriver, reTime);
-        call.enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) {
-
-                if (response.isSuccessful()){
-                    ResponseAcceptedDelivery res = (ResponseAcceptedDelivery) response.body();
-                    if (res.status){
-                        Toast.makeText(DetailDelivery2Activity.this, "Anda menolak pengiriman", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }else {
-                        Toast.makeText(getApplicationContext(), res.message, Toast.LENGTH_SHORT).show();
-                    }
-
-                }else {
-                    Toast.makeText(getApplicationContext(), "Failed to access server", Toast.LENGTH_SHORT).show();
-                }
-                progressDialog.hide();
-            }
-
-            @Override
-            public void onFailure(Call call, Throwable t) {
-
-            }
-        });
+    private void finishNotification() {
+        final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
     }
+
 
     private void getDetailPengiriman() {
 
@@ -265,9 +177,6 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
                         txtJarakPengiriman.setText(res.data.distance.text);
                         txtWaktuPengiriman.setText(res.data.time.text);
                         txtBiayaPengiriman.setText("Rp. " + money(res.data.biaya.value));
-
-                        timeDelivery = String.valueOf(res.data.time.value);
-                        codeDelivery = res.data.code;
 
                         mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
                         mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
@@ -606,8 +515,6 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
         criteria.setAltitudeRequired(false);
         criteria.setBearingRequired(false);
 
-
-
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         provider = locationManager.getBestProvider(criteria, true);
 
@@ -625,8 +532,7 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
 
         Location oldLocation = locationManager.getLastKnownLocation(provider);
         if (myPositionMarker == null && oldLocation != null){
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("ah_firebase", 0);
-            String regId = pref.getString("regId", null);
+            String regId = new SQLiteHandler(getApplicationContext()).getUser().driver_id;
             firebaseDb.child("Tracking").child(regId).setValue(oldLocation);
             firebaseDb.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -636,7 +542,7 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(DetailDelivery2Activity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
             myPositionMarker = mMap.addMarker(new MarkerOptions()
@@ -667,7 +573,7 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(DetailDelivery2Activity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
         Log.d("onLocationChanged: ", location.getLatitude() + "," + location.getLongitude());
@@ -728,39 +634,5 @@ public class DetailDelivery2Activity extends AppCompatActivity implements OnMapR
             }
         });
 
-    }
-
-    //============ post terima pengiriman ============//
-    private void acceptPengiriman(){
-
-    }
-
-    private void displayNotifikasi(String title, String message){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        Intent intent = new Intent(getApplicationContext(), DetailDeliveryActivity.class);
-        intent.putExtra("delivery_id", getIntent().getExtras().getString("delivery_id"));
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(title);
-        builder.setContentText(message);
-        builder.setSmallIcon(R.drawable.icon_car);
-
-        BitmapDrawable bitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.icon_car);
-        Bitmap largeIconBitmap = bitmapDrawable.getBitmap();
-        builder.setLargeIcon(largeIconBitmap);
-
-        builder.setOngoing(true);
-        builder.setContentIntent(pendingIntent);
-
-        builder.setDefaults(Notification.DEFAULT_ALL);
-        builder.setFullScreenIntent(pendingIntent, true);
-
-        Notification notification = builder.build();
-        notification.flags |= Notification.FLAG_NO_CLEAR;
-        notificationManager.notify(10, notification);
     }
 }

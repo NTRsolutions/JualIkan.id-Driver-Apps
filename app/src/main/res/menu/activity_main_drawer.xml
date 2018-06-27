@@ -9,7 +9,7 @@
         <item
             android:id="@+id/btn_riwayat_order"
             android:icon="@drawable/icon_riwayat_order"
-            android:title="Riwayat Order" />
+            android:title="Riwayat Pengiriman" />
         <item
             android:id="@+id/btn_saldoku"
             android:icon="@drawable/icon_wallet"

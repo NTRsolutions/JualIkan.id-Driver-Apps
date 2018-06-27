@@ -24,6 +24,7 @@ public class ResponseMainMenu {
         @SerializedName("email") public String email;
         @SerializedName("phone") public String phone;
         @SerializedName("saldo") public int saldo;
+        @SerializedName("order_total") public int order_total;
         @SerializedName("status") public int status;
         @SerializedName("text_status") public String text_status;
     }
@@ -35,6 +36,7 @@ public class ResponseMainMenu {
         @SerializedName("date_time") public String date_time;
         @SerializedName("distance") public String distance;
         @SerializedName("time") public String time;
+        @SerializedName("status") public int status;
     }
 
 }

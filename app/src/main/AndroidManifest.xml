@@ -47,8 +47,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".View.Delivery.DetailDeliveryActivity" />
-        <activity android:name=".View.Delivery.DetailDelivery2Activity">
+        <activity android:name=".View.Delivery.TrackDetailDeliveryActivity" />
+        <activity android:name=".View.Delivery.DetailDeliveryFinishedActivity" />
+        <activity android:name=".View.Delivery.NotfiDetailDeliveryActivity">
             <intent-filter>
                 <action android:name="DELIVERY_NOTIF" />
 

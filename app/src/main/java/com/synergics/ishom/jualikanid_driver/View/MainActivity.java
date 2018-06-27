@@ -92,11 +92,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         view = navigationView.getHeaderView(0);
 
-        //setting content header navigation drawer
-        navHeaderContent();
-
-        //setting tampilan menu
-        setContent();
     }
 
     private void setContent() {
@@ -141,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         morePengiriman.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "More Pengiriman", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), RiwayatPengirimanActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -184,12 +180,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ResponseUpdateStatus res = (ResponseUpdateStatus) response.body();
                     if (res.status){
                         Toast.makeText(MainActivity.this, res.message, Toast.LENGTH_SHORT).show();
-                        if (res.driver_status != 0){
+                        if (res.driver_status == 1){
                             userStatus.setText(res.text_status);
                             userStatus.setTextColor(getResources().getColor(R.color.green));
-                        }else {
+                        }else if (res.driver_status == 0){
                             userStatus.setText(res.text_status);
                             userStatus.setTextColor(getResources().getColor(R.color.red));
+                        }else {
+                            userStatus.setText(res.text_status);
+                            userStatus.setTextColor(getResources().getColor(R.color.blueFont));
                         }
                     }else {
                         Toast.makeText(MainActivity.this, "Gagal mengirim data dari server", Toast.LENGTH_SHORT).show();
@@ -226,13 +225,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (response.isSuccessful()) {
                     ResponseMainMenu res = (ResponseMainMenu) response.body();
                     if (res.status){
-                        if (res.data.driver.status != 0){
+                        if (res.data.driver.status == 1){
                             statusSwitch.setChecked(true);
                             userStatus.setText(res.data.driver.text_status);
                             userStatus.setTextColor(getResources().getColor(R.color.green));
-                        }else {
+                        }else if(res.data.driver.status == 0) {
                             userStatus.setText(res.data.driver.text_status);
                             userStatus.setTextColor(getResources().getColor(R.color.red));
+                        }else {
+                            statusSwitch.setEnabled(false);
+                            userStatus.setText(res.data.driver.text_status);
+                            userStatus.setTextColor(getResources().getColor(R.color.blueFont));
                         }
 
                         userPhone.setText(res.data.driver.phone);
@@ -245,12 +248,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             delieryNoFound.setVisibility(View.GONE);
 
                             idDelivery.setText(res.data.last_delivery.code);
-                            tanggalDeliery.setText(getTanggal(res.data.last_delivery.date_time));
-                            waktuHoursDelivery.setText(getJam(res.data.last_delivery.date_time));
+                            tanggalDeliery.setText(getJam(res.data.last_delivery.date_time) +  " " + getTanggal(res.data.last_delivery.date_time));
+//                            waktuHoursDelivery.setText(getStatus(res.data.last_delivery.date_time));
+                            setStatus(res.data.last_delivery.status);
                             jarakDelivery.setText(res.data.last_delivery.distance);
                             waktuDelivery.setText(res.data.last_delivery.time);
                             totalDelivery.setText(res.data.last_delivery.order_count + " User");
                         }
+
                     }else {
                         Toast.makeText(MainActivity.this, "Gagal mengabil data dari server", Toast.LENGTH_SHORT).show();
                     }
@@ -273,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //    private void sendNotification(){
 //        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //
-//        Intent intent = new Intent(getApplicationContext(), DetailDelivery2Activity.class);
+//        Intent intent = new Intent(getApplicationContext(), NotfiDetailDeliveryActivity.class);
 //        intent.putExtras("delivery_id", getIntent().getExtras().getString("delivery_"))
 //    }
 
@@ -291,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .load(AppConfig.url +user.driver_image)
                 .into(imgUser);
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -338,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String getJam(String date){
         String array[] = date.split("\\s+");
-        return array[1];
+        return array[1] + " WIB";
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -350,8 +357,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.btn_home) {
 
         } else if (id == R.id.btn_riwayat_order) {
-//            Intent intent = new Intent(getApplicationContext(), RiwayatOrderActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), RiwayatPengirimanActivity.class);
+            startActivity(intent);
         } else if (id == R.id.btn_saldoku) {
             Intent intent = new Intent(getApplicationContext(), RiwayatSaldoActivity.class);
             startActivity(intent);
@@ -389,6 +396,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume() {
         setting.forceEnableGPSAcess();
         setting.getLocation();
+        //setting content header navigation drawer
+        navHeaderContent();
+
+        //setting tampilan menu
+        setContent();
         super.onResume();
+    }
+
+    public void setStatus(int status) {
+        if (status == 1){
+            waktuHoursDelivery.setText("Sedang Delivery");
+            waktuHoursDelivery.setTextColor(getResources().getColor(R.color.blueFont));
+        }else {
+            waktuHoursDelivery.setText("Finished");
+            waktuHoursDelivery.setTextColor(getResources().getColor(R.color.green));
+        }
     }
 }
