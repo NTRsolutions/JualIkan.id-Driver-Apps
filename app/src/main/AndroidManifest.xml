@@ -59,7 +59,10 @@
         <activity android:name=".View.RiwayatPengirimanActivity" />
         <activity android:name=".View.RiwayatSaldoActivity" />
         <activity android:name=".View.BantuanActivity" />
-        <activity android:name=".View.WebViewActivity"></activity>
+        <activity android:name=".View.WebViewActivity" />
+        <activity android:name=".View.ProfileActivity" />
+        <activity android:name=".View.UbahProfileActivity" />
+        <activity android:name=".View.UbahWeightActivity"></activity>
     </application>
 
 </manifest>

@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -60,6 +59,7 @@ import com.synergics.ishom.jualikanid_driver.Controller.AppConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiClient;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiInterface;
 import com.synergics.ishom.jualikanid_driver.Controller.SQLiteHandler;
+import com.synergics.ishom.jualikanid_driver.Controller.SessionManager;
 import com.synergics.ishom.jualikanid_driver.Controller.Setting;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseAcceptedDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
@@ -96,6 +96,7 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
     private LocationManager locationManager;
 
     private Setting setting;
+    private SessionManager manager;
 
     private ArrayList<LatLng> points = new ArrayList<>();
 
@@ -118,6 +119,12 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
         setContentView(R.layout.activity_detail_delivery2);
 
         mapsTracker = new MapsTracker();
+        manager = new SessionManager(getApplicationContext());
+        if (manager.getOrderID().isEmpty()){
+            manager.setOrderID(getIntent().getExtras().getString("delivery_id"));
+        }else {
+            Toast.makeText(getApplicationContext(), "" + manager.getOrderID(), Toast.LENGTH_SHORT).show();
+        }
 
         txtJarakPengiriman = findViewById(R.id.jarakDelivery);
         txtWaktuPengiriman = findViewById(R.id.waktuDelivery);
@@ -155,7 +162,7 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
     private void doingAccepted() {
         SQLiteHandler db = new SQLiteHandler(getApplicationContext());
 
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_delivery = manager.getOrderID();
         String id_driver = db.getUser().driver_id;
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -197,7 +204,7 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
     private void doingRejected() {
         SQLiteHandler db = new SQLiteHandler(getApplicationContext());
 
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_delivery = manager.getOrderID();
         String id_driver = db.getUser().driver_id;
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -239,7 +246,8 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
 
     private void getDetailPengiriman() {
 
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_delivery = manager.getOrderID();
+        Toast.makeText(getApplicationContext(), "getDetail", Toast.LENGTH_SHORT).show();
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading....");
@@ -707,7 +715,7 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent intent = new Intent(getApplicationContext(), TrackDetailDeliveryActivity.class);
-        intent.putExtra("delivery_id", getIntent().getExtras().getString("delivery_id"));
+        intent.putExtra("delivery_id", manager.getOrderID());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
@@ -716,10 +724,6 @@ public class NotfiDetailDeliveryActivity extends AppCompatActivity implements On
         builder.setContentTitle(title);
         builder.setContentText(message);
         builder.setSmallIcon(R.drawable.icon_car);
-
-        BitmapDrawable bitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.icon_car);
-        Bitmap largeIconBitmap = bitmapDrawable.getBitmap();
-        builder.setLargeIcon(largeIconBitmap);
 
         builder.setOngoing(true);
         builder.setContentIntent(pendingIntent);

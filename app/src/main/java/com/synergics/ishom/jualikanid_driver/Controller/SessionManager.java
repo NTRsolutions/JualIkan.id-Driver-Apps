@@ -22,9 +22,10 @@ public class SessionManager {
     int PRIVATE_MODE = 0;
 
     // Shared preferences file name
-    private static final String PREF_NAME = "AsianGames";
+    private static final String PREF_NAME = "JualIkanDriver";
 
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_ORDER = "idOrder";
 
     public SessionManager(Context context) {
         this._context = context;
@@ -45,4 +46,15 @@ public class SessionManager {
     public boolean isLoggedIn(){
         return pref.getBoolean(KEY_IS_LOGGED_IN, false);
     }
+
+    public void setOrderID(String bearer) {
+        editor.putString(KEY_ORDER, bearer);
+        editor.commit();
+        Log.d(TAG, "User bearer is saved!");
+    }
+
+    public String getOrderID(){
+        return pref.getString(KEY_ORDER, "");
+    }
+
 }

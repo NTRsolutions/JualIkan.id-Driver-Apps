@@ -97,9 +97,15 @@ public class FragmentOrderDalamProses extends Fragment {
                                         view.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
-                                                Intent intent = new Intent(viewFragment.getContext(), TrackDetailDeliveryActivity.class);
-                                                intent.putExtra("delivery_id", data.id);
-                                                startActivity(intent);
+                                                if (data.status == 0){
+                                                    Intent intent = new Intent(viewFragment.getContext(), NotfiDetailDeliveryActivity.class);
+                                                    intent.putExtra("delivery_id", data.id);
+                                                    startActivity(intent);
+                                                }else {
+                                                    Intent intent = new Intent(viewFragment.getContext(), TrackDetailDeliveryActivity.class);
+                                                    intent.putExtra("delivery_id", data.id);
+                                                    startActivity(intent);
+                                                }
                                             }
                                         });   
                                     }

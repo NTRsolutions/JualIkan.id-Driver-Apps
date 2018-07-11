@@ -62,7 +62,6 @@ public class RiwayatSaldoActivity extends AppCompatActivity {
                             public void action(View view) {
                                 TextView name = view.findViewById(R.id.name);
                                 TextView saldo = view.findViewById(R.id.saldo);
-
                                 name.setText(data.name);
                                 saldo.setText(data.saldo);
                             }

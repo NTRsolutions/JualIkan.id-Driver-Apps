@@ -13,14 +13,9 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,7 +24,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,7 +32,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -49,16 +42,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.synergics.ishom.jualikanid_driver.Controller.AppConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiClient;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiInterface;
-import com.synergics.ishom.jualikanid_driver.Controller.SQLiteHandler;
 import com.synergics.ishom.jualikanid_driver.Controller.Setting;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
@@ -81,7 +70,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailDeliveryFinishedActivity extends AppCompatActivity implements OnMapReadyCallback, LocationSource.OnLocationChangedListener, LocationListener {
+public class DetailDeliveryFinishedActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     private TextView txtJarakPengiriman, txtWaktuPengiriman, txtBiayaPengiriman;
     private Button btnFinish;
@@ -111,7 +100,7 @@ public class DetailDeliveryFinishedActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_delivery);
+        setContentView(R.layout.activity_detail_delivery_finished);
 
         mapsTracker = new MapsTracker();
 
@@ -370,7 +359,6 @@ public class DetailDeliveryFinishedActivity extends AppCompatActivity implements
         });
 
         getDetailPengiriman();
-        registerLocationUpdate();
     }
 
     private void displayDialog(final ResponseDetailDelivery.Order data) {
@@ -502,103 +490,6 @@ public class DetailDeliveryFinishedActivity extends AppCompatActivity implements
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    private void registerLocationUpdate() {
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_LOW);
-        criteria.setAccuracy(Criteria.POWER_LOW);
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-
-        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-        provider = locationManager.getBestProvider(criteria, true);
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(provider, 1L, 1f, this);
-
-        Location oldLocation = locationManager.getLastKnownLocation(provider);
-        if (myPositionMarker == null && oldLocation != null){
-            String regId = new SQLiteHandler(getApplicationContext()).getUser().driver_id;
-            firebaseDb.child("Tracking").child(regId).setValue(oldLocation);
-            firebaseDb.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            myPositionMarker = mMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .icon(getDriverMarkerBitmap())
-                    .anchor(0.5f, 0.5f)
-                    .position(new LatLng(oldLocation.getLatitude(), oldLocation.getLongitude()))
-            );
-
-        }
-
-        animateMarker(myPositionMarker, oldLocation);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location == null){
-            return;
-        }
-
-        SQLiteHandler db = new SQLiteHandler(getApplicationContext());
-        firebaseDb.child("Tracking").child(db.getUser().driver_id).setValue(location);
-        firebaseDb.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        Log.d("onLocationChanged: ", location.getLatitude() + "," + location.getLongitude());
-
-        if (myPositionMarker == null){
-            myPositionMarker = mMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .icon(getDriverMarkerBitmap())
-                    .anchor(0.5f, 0.5f)
-                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
-            );
-        }
-
-        animateMarker(myPositionMarker, location);
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-        Log.d("onStatusChanged: " , "marker status has been update");
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-
     private void setStatusColor(int status, TextView textView){
         if (status == 2){
             textView.setText("Finished");
@@ -607,36 +498,5 @@ public class DetailDeliveryFinishedActivity extends AppCompatActivity implements
             textView.setText("Sedang Delivery");
             textView.setTextColor(getResources().getColor(R.color.blueFont));
         }
-    }
-
-    private void animateMarker(final Marker marker, final Location location) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final LatLng startLatLng = marker.getPosition();
-        final double startRotation = marker.getRotation();
-        final long duration = 500;
-
-        final LinearInterpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed/duration);
-
-                double lat = t * location.getLatitude() + (1-t) * startLatLng.latitude;
-                double lng = t * location.getLongitude() + (1-t) * startLatLng.longitude;
-
-                float rotation = (float) (t * location.getBearing() + (1 - t) * startRotation);
-
-                marker.setPosition(new LatLng(lat, lng));
-                marker.setRotation(rotation);
-
-                if ( t < 1.0){
-                    handler.postDelayed(this, 16);
-                }
-            }
-        });
-
     }
 }

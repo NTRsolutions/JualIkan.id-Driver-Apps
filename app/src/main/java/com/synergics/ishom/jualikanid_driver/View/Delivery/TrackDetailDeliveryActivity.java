@@ -60,12 +60,15 @@ import com.synergics.ishom.jualikanid_driver.Controller.AppConfig;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiClient;
 import com.synergics.ishom.jualikanid_driver.Controller.RetroConfig.ApiInterface;
 import com.synergics.ishom.jualikanid_driver.Controller.SQLiteHandler;
+import com.synergics.ishom.jualikanid_driver.Controller.SessionManager;
 import com.synergics.ishom.jualikanid_driver.Controller.Setting;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelivery;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMessage;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.MapsTracker;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Titik;
 import com.synergics.ishom.jualikanid_driver.R;
+import com.synergics.ishom.jualikanid_driver.View.MainActivity;
 
 import net.idik.lib.slimadapter.SlimAdapter;
 import net.idik.lib.slimadapter.SlimInjector;
@@ -78,6 +81,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -108,6 +113,7 @@ public class TrackDetailDeliveryActivity extends AppCompatActivity implements On
     private SlideToActView slide;
 
     private int counter = 0;
+    private SessionManager manager;
 
     private DatabaseReference firebaseDb = FirebaseDatabase.getInstance().getReference();
 
@@ -117,6 +123,7 @@ public class TrackDetailDeliveryActivity extends AppCompatActivity implements On
         setContentView(R.layout.activity_detail_delivery);
 
         mapsTracker = new MapsTracker();
+        manager = new SessionManager(getApplicationContext());
 
         txtJarakPengiriman = findViewById(R.id.jarakDelivery);
         txtWaktuPengiriman = findViewById(R.id.waktuDelivery);
@@ -143,11 +150,47 @@ public class TrackDetailDeliveryActivity extends AppCompatActivity implements On
     }
 
     private void completeDelivery() {
-        Toast.makeText(this, "Delivery Finished !!", Toast.LENGTH_SHORT).show();
-        finishNotification();
+        final ProgressDialog pDialog = new ProgressDialog(this);
+        // Showing progress dialog before Amaking http request
+        pDialog.setMessage("Loading...");
+        pDialog.show();
+
+        String id_delivery = manager.getOrderID();
+
+        RequestBody idDelivery  = RequestBody.create(MediaType.parse("text/plain"), id_delivery);
+        RequestBody idDriver  = RequestBody.create(MediaType.parse("text/plain"), new SQLiteHandler(getApplicationContext()).getUser().driver_id);
+
+        ApiInterface apiInterface = ApiClient.jualikanService().create(ApiInterface.class);
+        Call call = apiInterface.finishDelivery(idDriver, idDelivery);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                //mengambil data tracking
+                if (response.isSuccessful()) {
+                    ResponseMessage res = (ResponseMessage) response.body();
+                    if (res.status){
+                        finishNotification();
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                        Toast.makeText(TrackDetailDeliveryActivity.this, res.message, Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(TrackDetailDeliveryActivity.this, res.message, Toast.LENGTH_SHORT).show();
+                    }
+                }else {
+                    Toast.makeText(TrackDetailDeliveryActivity.this, "Terjadi kesalahan", Toast.LENGTH_SHORT).show();
+                }
+                pDialog.hide();
+            }
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Gagal mengabil data dari server", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void finishNotification() {
+        manager.setOrderID("");
         final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
     }
@@ -155,7 +198,7 @@ public class TrackDetailDeliveryActivity extends AppCompatActivity implements On
 
     private void getDetailPengiriman() {
 
-        String id_delivery = getIntent().getExtras().getString("delivery_id");
+        String id_delivery = manager.getOrderID();
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading....");
@@ -172,29 +215,30 @@ public class TrackDetailDeliveryActivity extends AppCompatActivity implements On
                     ResponseDetailDelivery res = (ResponseDetailDelivery) response.body();
 
                     if (res.status) {
-                        toolbarTitle.setText(res.data.code);
+                        if (res.data.id != 0){
+                            toolbarTitle.setText(res.data.code);
 
-                        txtJarakPengiriman.setText(res.data.distance.text);
-                        txtWaktuPengiriman.setText(res.data.time.text);
-                        txtBiayaPengiriman.setText("Rp. " + money(res.data.biaya.value));
+                            txtJarakPengiriman.setText(res.data.distance.text);
+                            txtWaktuPengiriman.setText(res.data.time.text);
+                            txtBiayaPengiriman.setText("Rp. " + money(res.data.biaya.value));
 
-                        mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
-                        mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
+                            mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
+                            mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng))));
 
-                        for (ResponseDetailDelivery.Order order : res.data.orders) {
-                            Marker marker = insialisasiMarkerDrawable(order);
-                            listOrder.put(marker, order);
-                            mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(order.lokasi.lokasi_lat), Double.parseDouble(order.lokasi.lokasi_lng))));
+                            for (ResponseDetailDelivery.Order order : res.data.orders) {
+                                Marker marker = insialisasiMarkerDrawable(order);
+                                listOrder.put(marker, order);
+                                mapsTracker.addTitik(new Titik("", new LatLng(Double.parseDouble(order.lokasi.lokasi_lat), Double.parseDouble(order.lokasi.lokasi_lng))));
+                            }
+
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng)))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_company)));
+                            bounds.include(new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng)));
+
+                            LatLngBounds latLngBounds = bounds.build();
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100));
                         }
-
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng)))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_company)));
-                        bounds.include(new LatLng(Double.parseDouble(res.data.koperasi.lat), Double.parseDouble(res.data.koperasi.lng)));
-
-                        LatLngBounds latLngBounds = bounds.build();
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100));
-
                     } else {
                         Toast.makeText(getApplicationContext(), res.message, Toast.LENGTH_SHORT).show();
                     }

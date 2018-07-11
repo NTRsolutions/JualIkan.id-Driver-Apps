@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.synergics.ishom.jualikanid_driver.Controller.SessionManager;
 import com.synergics.ishom.jualikanid_driver.R;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -41,6 +42,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String delivery_id = remoteMessage.getData().get("delivery_id");
         Bundle bundle = new Bundle();
         bundle.putString("delivery_id", delivery_id);
+
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        sessionManager.setOrderID(delivery_id);
 
         Intent intent = new Intent(action);
         intent.putExtras(bundle);

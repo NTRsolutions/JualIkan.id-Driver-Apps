@@ -30,6 +30,8 @@ import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMainMenu;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseUpdateStatus;
 import com.synergics.ishom.jualikanid_driver.R;
+import com.synergics.ishom.jualikanid_driver.View.Delivery.DetailDeliveryFinishedActivity;
+import com.synergics.ishom.jualikanid_driver.View.Delivery.TrackDetailDeliveryActivity;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -223,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 //mengambil data tracking
                 if (response.isSuccessful()) {
-                    ResponseMainMenu res = (ResponseMainMenu) response.body();
+                    final ResponseMainMenu res = (ResponseMainMenu) response.body();
                     if (res.status){
                         if (res.data.driver.status == 1){
                             statusSwitch.setChecked(true);
@@ -245,6 +247,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         if (res.data.last_delivery != null){
                             bgDelivery.setVisibility(View.VISIBLE);
+                            bgDelivery.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if (res.data.last_delivery.status == 1){
+                                        Intent intent = new Intent(getApplicationContext(), TrackDetailDeliveryActivity.class);
+                                        intent.putExtra("delivery_id", res.data.last_delivery.id);
+                                        startActivity(intent);
+                                    }else {
+                                        Intent intent = new Intent(getApplicationContext(), DetailDeliveryFinishedActivity.class);
+                                        intent.putExtra("delivery_id", res.data.last_delivery.id);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
                             delieryNoFound.setVisibility(View.GONE);
 
                             idDelivery.setText(res.data.last_delivery.code);
@@ -287,6 +303,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         txtSaldo = view.findViewById(R.id.userSaldo);
         imgUser = view.findViewById(R.id.userImage);
 
+        ImageView imgProfile = view.findViewById(R.id.btnSetting);
+
         ResponseLogin.Data user = db.getUser();
 
         txtUsername.setText(user.driver_full_name);
@@ -295,6 +313,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Picasso.with(view.getContext())
                 .load(AppConfig.url +user.driver_image)
                 .into(imgUser);
+
+        imgProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 

@@ -9,7 +9,9 @@ import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseDetailDelive
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseListDelivery;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseLogin;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMainMenu;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMessage;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseMidtransSnap;
+import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseProfile;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseSaldo;
 import com.synergics.ishom.jualikanid_driver.Model.Retrofit.ResponseUpdateStatus;
 import com.synergics.ishom.jualikanid_driver.Model.TrackMaps.Direction;
@@ -112,4 +114,24 @@ public interface ApiInterface {
     @Multipart
     @POST("delivery-finished-history.php")
     Call<ResponseListDelivery> deliveryFinishedHistory(@Part("driver_id") RequestBody driver_id);
+
+    @Multipart
+    @POST("profile.php")
+    Call<ResponseProfile> profile(@Part("driver_id") RequestBody driver_id);
+
+    @Multipart
+    @POST("delivery-finish.php")
+    Call<ResponseMessage> finishDelivery(@Part("driver_id") RequestBody driver_id,
+                                                  @Part("delivery_id") RequestBody delivery_id);
+
+    @Multipart
+    @POST("update_password.php")
+    Call<ResponseMessage> update_password(@Part("driver_id") RequestBody driver_id,
+                                         @Part("old_password") RequestBody old_password,
+                                         @Part("new_password") RequestBody new_password);
+
+    @Multipart
+    @POST("update_weight.php")
+    Call<ResponseMessage> update_weight(@Part("driver_id") RequestBody driver_id,
+                                          @Part("weight") RequestBody weight);
 }
